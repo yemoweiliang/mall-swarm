@@ -58,6 +58,7 @@ public class UserServiceImpl implements UserDetailsService {
         }
         userDto.setClientId(clientId);
         SecurityUser securityUser = new SecurityUser(userDto);
+        //只需要openid去确认用户 统一密码去绕过验证
         if(AuthConstant.WECHAT_CLIENT_ID.equals(clientId)){
             securityUser.setPassword(BCrypt.hashpw(AuthConstant.WECHAT_CLIENT_SECRET));
         }
