@@ -100,7 +100,14 @@ public class HomeServiceImpl implements HomeService {
         return homeDao.getNewProductList(offset, pageSize);
     }
 
-    private HomeFlashPromotion getHomeFlashPromotion() {
+    @Override
+    public long count() {
+        return productMapper.countByExample(null);
+        //todo: return goods counts
+        //return 0;
+    }
+    
+        private HomeFlashPromotion getHomeFlashPromotion() {
         HomeFlashPromotion homeFlashPromotion = new HomeFlashPromotion();
         //获取当前秒杀活动
         Date now = new Date();

@@ -19,12 +19,29 @@ public interface UmsMemberService {
      * 根据会员编号获取会员
      */
     UmsMember getById(Long id);
+    /**
+     *  get member by using wechat openid
+     */
+    UmsMember getByOpenid(String openid);
 
+    UserDto loadUserByOpenid(String openid);
     /**
      * 用户注册
      */
     @Transactional
     void register(String username, String password, String telephone, String authCode);
+        /**
+     * user register without auth code
+     */
+    @Transactional
+    void register(String openid, String nick_name, String telephone);
+
+    /**
+     * user register without auth code
+     * this register code is for third-party register such as wechat
+     */
+    @Transactional
+    void wx_register(String openid, String nick_name,String icon,String city,int gender, String telephone);
 
     /**
      * 生成验证码
@@ -57,4 +74,8 @@ public interface UmsMemberService {
      * 登录后获取token
      */
     CommonResult login(String username, String password);
+    /**
+     * 登录后获取token
+     */
+    CommonResult wx_login(String openid);
 }

@@ -56,7 +56,6 @@ public class SecurityUser implements UserDetails {
             userDto.getRoles().forEach(item -> authorities.add(new SimpleGrantedAuthority(item)));
         }
     }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;

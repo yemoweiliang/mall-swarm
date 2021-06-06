@@ -21,4 +21,6 @@ public class Oauth2TokenDto {
     private String tokenHead;
     @ApiModelProperty("有效时间（秒）")
     private int expiresIn;
+    @ApiModelProperty("wechat openid")
+    private String openid;
 }

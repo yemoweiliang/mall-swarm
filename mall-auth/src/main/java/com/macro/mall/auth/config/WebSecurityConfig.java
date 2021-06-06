@@ -18,24 +18,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+
+    private boolean disableLocalConfigureAuthenticationBldr;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+            http.authorizeRequests()
                 .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
-                .antMatchers("/rsa/publicKey").permitAll()
-                .antMatchers("/v2/api-docs").permitAll()
+                .antMatchers("/rsa/publicKey","/v2/api-docs").permitAll()
                 .anyRequest().authenticated();
     }
-
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
 }

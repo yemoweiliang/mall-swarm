@@ -24,13 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
-
 /**
  * 会员管理Service实现类
  * Created by macro on 2018/8/3.
@@ -60,10 +62,24 @@ public class UmsMemberServiceImpl implements UmsMemberService {
         List<UmsMember> memberList = memberMapper.selectByExample(example);
         if (!CollectionUtils.isEmpty(memberList)) {
             return memberList.get(0);
+            
+        }
+        return null;
+    }    
+
+    @Override
+    public UmsMember getByOpenid(String openid){
+        UmsMemberExample example = new UmsMemberExample();
+        example.createCriteria().andWxOpenidEqualTo(openid);
+        List<UmsMember> memberList = memberMapper.selectByExample(example);
+        if (!CollectionUtils.isEmpty(memberList)) {
+            return memberList.get(0);
+//            UmsMember member = memberList.get(0);
+//            memberCacheService.setMember(member);
+//            return member;
         }
         return null;
     }
-
     @Override
     public UmsMember getById(Long id) {
         return memberMapper.selectByPrimaryKey(id);
@@ -75,6 +91,55 @@ public class UmsMemberServiceImpl implements UmsMemberService {
         if(!verifyAuthCode(authCode,telephone)){
             Asserts.fail("验证码错误");
         }
+        this.register(username,password,telephone);
+    }
+
+    @Override
+    public void wx_register(String openid, String nick_name, String icon,String city,int gender,String telephone){
+        UmsMemberExample example = new UmsMemberExample();
+        example.createCriteria().andUsernameEqualTo(openid);
+        List<UmsMember> umsMembers = memberMapper.selectByExample(example);
+        if (!CollectionUtils.isEmpty(umsMembers)) {
+            //该用户已经存在
+            //update openid if it is not exist and equals username
+            UmsMember umsMember=getByUsername(openid);
+            umsMember.setWxOpenid(openid);
+            // update user information
+            if(umsMember.getNickname()==null){
+                umsMember.setNickname(nick_name);
+            }
+            if(umsMember.getIcon()==null){
+                umsMember.setIcon(icon);
+            }
+            if(umsMember.getCity()==null) {
+                umsMember.setCity(city);
+            }
+            memberMapper.updateByExample(umsMember,example);
+            return;
+        }
+        //没有该用户进行添加操作
+        UmsMember umsMember=new UmsMember();
+        umsMember.setUsername(openid);
+        umsMember.setWxOpenid(openid);
+        umsMember.setNickname(nick_name);
+        umsMember.setIcon(icon);
+        umsMember.setCity(city);
+        umsMember.setGender(gender);
+        umsMember.setPassword(BCrypt.hashpw(openid));
+        umsMember.setCreateTime(new Date());
+        umsMember.setStatus(1);
+        UmsMemberLevelExample levelExample = new UmsMemberLevelExample();
+        levelExample.createCriteria().andDefaultStatusEqualTo(1);
+        List<UmsMemberLevel> memberLevelList = memberLevelMapper.selectByExample(levelExample);
+        if (!CollectionUtils.isEmpty(memberLevelList)) {
+            umsMember.setMemberLevelId(memberLevelList.get(0).getId());
+        }
+        memberMapper.insert(umsMember);
+        umsMember.setPassword(null);
+    }
+
+    @Override
+    public void register(String username, String password, String telephone){
         //查询是否已有该用户
         UmsMemberExample example = new UmsMemberExample();
         example.createCriteria().andUsernameEqualTo(username);
@@ -169,19 +234,47 @@ public class UmsMemberServiceImpl implements UmsMemberService {
     }
 
     @Override
+    public UserDto loadUserByOpenid(String openid){
+        UmsMember member = getByOpenid(openid);
+        if(member!=null){
+            UserDto userDto = new UserDto();
+            BeanUtil.copyProperties(member,userDto);
+            userDto.setRoles(CollUtil.toList("前台会员"));
+            return userDto;
+        }
+        return null;
+    }
+    @Override
     public CommonResult login(String username, String password) {
         if(StrUtil.isEmpty(username)||StrUtil.isEmpty(password)){
             Asserts.fail("用户名或密码不能为空！");
         }
+        if(username.equals(password)){
+            Asserts.fail("用户名密码不能相同！");
+        }
         Map<String, String> params = new HashMap<>();
         params.put("client_id", AuthConstant.PORTAL_CLIENT_ID);
+        //todo:get client_secret from global config
         params.put("client_secret","123456");
         params.put("grant_type","password");
         params.put("username",username);
         params.put("password",password);
         return authService.getAccessToken(params);
     }
-
+    @Override
+    public CommonResult wx_login(String openid){
+        //todo:wechat login part
+        if(StrUtil.isEmpty(openid)){
+            Asserts.fail("无法从微信服务器获取用户ID");
+        }
+        Map<String, String> params = new HashMap<>();
+        params.put("grant_type","password");
+        params.put("username",openid);
+        params.put("client_id", AuthConstant.WECHAT_CLIENT_ID);
+        params.put("client_secret",AuthConstant.WECHAT_CLIENT_SECRET);
+        params.put("password",AuthConstant.WECHAT_CLIENT_SECRET);
+        return authService.getAccessToken(params);
+    }
     //对输入的验证码进行校验
     private boolean verifyAuthCode(String authCode, String telephone){
         if(StringUtils.isEmpty(authCode)){

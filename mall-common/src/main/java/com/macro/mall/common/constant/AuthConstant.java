@@ -25,7 +25,14 @@ public interface AuthConstant {
      * 前台商城client_id
      */
     String PORTAL_CLIENT_ID = "portal-app";
-
+    /**
+     * 微信登录商城client_id
+     */
+    String WECHAT_CLIENT_ID = "wechat-app";
+    /**
+     * wechat client secret
+     */
+    String WECHAT_CLIENT_SECRET="wechat-apps-secret";
     /**
      * 后台管理接口路径匹配
      */
@@ -50,5 +57,7 @@ public interface AuthConstant {
      * 用户信息Http请求头
      */
     String USER_TOKEN_HEADER = "user";
+
+
 
 }

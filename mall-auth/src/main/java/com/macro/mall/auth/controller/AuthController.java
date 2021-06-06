@@ -7,6 +7,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
@@ -28,7 +30,7 @@ import java.util.Map;
 @Api(tags = "AuthController", description = "认证中心登录认证")
 @RequestMapping("/oauth")
 public class AuthController {
-
+    protected final Log logger = LogFactory.getLog(this.getClass());
     @Autowired
     private TokenEndpoint tokenEndpoint;
 
@@ -39,7 +41,7 @@ public class AuthController {
             @ApiImplicitParam(name = "client_secret", value = "Oauth2客户端秘钥", required = true),
             @ApiImplicitParam(name = "refresh_token", value = "刷新token"),
             @ApiImplicitParam(name = "username", value = "登录用户名"),
-            @ApiImplicitParam(name = "password", value = "登录密码")
+            @ApiImplicitParam(name = "password", value = "登录密码"),
     })
     @RequestMapping(value = "/token", method = RequestMethod.POST)
     public CommonResult<Oauth2TokenDto> postAccessToken(@ApiIgnore Principal principal, @ApiIgnore @RequestParam Map<String, String> parameters) throws HttpRequestMethodNotSupportedException {
@@ -49,6 +51,9 @@ public class AuthController {
                 .refreshToken(oAuth2AccessToken.getRefreshToken().getValue())
                 .expiresIn(oAuth2AccessToken.getExpiresIn())
                 .tokenHead(AuthConstant.JWT_TOKEN_PREFIX).build();
+        if(parameters.get("client_id").equals("wechat-app")){
+            oauth2TokenDto.setOpenid(parameters.get("username"));
+        }
 
         return CommonResult.success(oauth2TokenDto);
     }

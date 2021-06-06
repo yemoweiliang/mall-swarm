@@ -12,4 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface UmsMemberService {
     @GetMapping("/sso/loadByUsername")
     UserDto loadUserByUsername(@RequestParam String username);
+    @GetMapping("/sso/loadByOpenid")
+    UserDto loadUserByOpenid(@RequestParam String openid);
 }

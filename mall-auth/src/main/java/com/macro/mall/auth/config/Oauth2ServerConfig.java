@@ -2,6 +2,7 @@ package com.macro.mall.auth.config;
 
 import com.macro.mall.auth.component.JwtTokenEnhancer;
 import com.macro.mall.auth.service.impl.UserServiceImpl;
+import com.macro.mall.common.constant.AuthConstant;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +36,6 @@ public class Oauth2ServerConfig extends AuthorizationServerConfigurerAdapter {
     private final UserServiceImpl userDetailsService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenEnhancer jwtTokenEnhancer;
-
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
@@ -50,6 +50,13 @@ public class Oauth2ServerConfig extends AuthorizationServerConfigurerAdapter {
                 .secret(passwordEncoder.encode("123456"))
                 .scopes("all")
                 .authorizedGrantTypes("password", "refresh_token")
+                .accessTokenValiditySeconds(3600*24)
+                .refreshTokenValiditySeconds(3600*24*7)
+                .and()
+                .withClient(AuthConstant.WECHAT_CLIENT_ID)
+                .secret(passwordEncoder.encode(AuthConstant.WECHAT_CLIENT_SECRET))
+                .scopes("all")
+                .authorizedGrantTypes("client_credentials","password", "refresh_token")
                 .accessTokenValiditySeconds(3600*24)
                 .refreshTokenValiditySeconds(3600*24*7);
     }

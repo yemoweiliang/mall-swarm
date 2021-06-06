@@ -6,6 +6,8 @@ import com.macro.mall.model.UmsMember;
 import com.macro.mall.portal.service.UmsMemberService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Api(tags = "UmsMemberController", description = "会员登录注册管理")
 @RequestMapping("/sso")
 public class UmsMemberController {
+
+    protected final Log logger = LogFactory.getLog(this.getClass());
     @Autowired
     private UmsMemberService memberService;
 
@@ -74,5 +78,12 @@ public class UmsMemberController {
     @ResponseBody
     public UserDto loadUserByUsername(@RequestParam String username) {
         return memberService.loadUserByUsername(username);
+    }
+
+    @ApiOperation("根据openid获取通用用户信息")
+    @RequestMapping(value = "/loadByOpenid", method = RequestMethod.GET)
+    @ResponseBody
+    public UserDto loadByOpenid(@RequestParam String openid) {
+        return memberService.loadUserByOpenid(openid);
     }
 }

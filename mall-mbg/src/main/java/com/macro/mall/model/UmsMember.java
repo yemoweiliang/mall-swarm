@@ -60,6 +60,9 @@ public class UmsMember implements Serializable {
     @ApiModelProperty(value = "历史积分数量")
     private Integer historyIntegration;
 
+    @ApiModelProperty(value = "openid")
+    private String wxOpenid;
+
     private static final long serialVersionUID = 1L;
 
     public Long getId() {
@@ -214,6 +217,14 @@ public class UmsMember implements Serializable {
         this.historyIntegration = historyIntegration;
     }
 
+    public String getWxOpenid() {
+        return wxOpenid;
+    }
+
+    public void setWxOpenid(String wxOpenid) {
+        this.wxOpenid = wxOpenid;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -239,6 +250,7 @@ public class UmsMember implements Serializable {
         sb.append(", growth=").append(growth);
         sb.append(", luckeyCount=").append(luckeyCount);
         sb.append(", historyIntegration=").append(historyIntegration);
+        sb.append(", wxOpenid=").append(wxOpenid);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

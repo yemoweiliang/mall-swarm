@@ -1,6 +1,8 @@
 package com.macro.mall.auth.component;
 
 import com.macro.mall.auth.domain.SecurityUser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -16,8 +18,10 @@ import java.util.Map;
  */
 @Component
 public class JwtTokenEnhancer implements TokenEnhancer {
+    protected final Log logger = LogFactory.getLog(this.getClass());
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
+
         SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
         Map<String, Object> info = new HashMap<>();
         //把用户ID设置到JWT中
