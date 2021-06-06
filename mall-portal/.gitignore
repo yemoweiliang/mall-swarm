@@ -24,4 +24,4 @@
 /nbdist/
 /.nb-gradle/
 
-./src/main/resources/bootstrap-dev.yml
+./mall-portal/src/main/resources/bootstrap-dev.yml

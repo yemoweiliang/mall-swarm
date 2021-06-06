@@ -10,4 +10,7 @@ target/
 .classpath
 .project
 
-./mall-portal/src/main/resources/*
+
+
+**/bootstrap-dev.yml
+./mall-portal/src/main/resources/bootstrap-dev.yml
