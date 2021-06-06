@@ -9,3 +9,5 @@ target/
 .settings/
 .classpath
 .project
+
+/mall-portal/src/main/resources/bootstrap-dev.yml
